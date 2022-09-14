@@ -6,26 +6,27 @@ const formKey = 'feedback-form-state';
 form.addEventListener('input', throttle(onFormData, 500));
 form.addEventListener('submit', onSubmitForm);
 
-const dataForm = {};
+getDataForm();
 
-function dataStorage() {
-  const data = JSON.parse(localStorage.getItem(formKey));
-  const email = document.querySelector('input');
-  const message = document.querySelector('textarea');
-  if (data) {
-    email.value = data.email;
-    message.value = data.message;
-  }
+function onSubmitForm(e) {
+  e.preventDefault();
+  form.reset();
+  localStorage.removeItem(formKey);
 }
 
 function onFormData(e) {
-  dataForm[e.target.name] = e.target.value;
-  localStorage.setItem(formKey, JSON.stringify(dataForm));
+  let formData = localStorage.getItem(formKey);
+  formData = formData ? JSON.parse(formData) : {};
+  formData[e.target.name] = e.target.value;
+  formData = localStorage.setItem(formKey, JSON.stringify(formData));
 }
 
-function onSubmitForm(e) {
-  console.log(JSON.parse(localStorage.getItem(formKey)));
-  e.preventDefault();
-  e.currentTarget.reset();
-  localStorage.removeItem(formKey);
+function getDataForm() {
+  let data = localStorage.getItem(formKey);
+  if (data) {
+    data = JSON.parse(data);
+    Object.entries(data).forEach(([name, value]) => {
+      form.elements[name].value = value;
+    });
+  }
 }
